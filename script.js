@@ -1,19 +1,25 @@
-const speedTest = require('speedtest-net');
+function testarVelocidade() {
+  const startTime = performance.now();
 
-function runSpeedTest() {
-  const test = speedTest({ maxTime: 5000 });
+  fetch('https://httpbin.org/get').then(response => {
+    if (response.ok) {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      const ping = duration / 2; // Assuming ping is half of the total round-trip time
+      const downloadSpeed = response.body.length / duration * 8; // Assuming 8 bits per byte
+      const uploadSpeed = 0; // Assuming upload speed is not measured
 
-  test.on('data', data => {
-    const downloadSpeed = (data.speeds.download / 1024 / 1024).toFixed(2); // convertendo para MB/s
-    const uploadSpeed = (data.speeds.upload / 1024 / 1024).toFixed(2); // convertendo para MB/s
-
-    console.log(`Velocidade de Download: ${downloadSpeed} MB/s`);
-    console.log(`Velocidade de Upload: ${uploadSpeed} MB/s`);
-  });
-
-  test.on('error', err => {
-    console.error(`Erro no teste de velocidade: ${err.message}`);
+      console.log(`
+        Ping: ${ping}ms
+        Download: ${downloadSpeed.toFixed(2)} Mbps
+        Upload: ${uploadSpeed.toFixed(2)} Mbps
+      `);
+    } else {
+      console.error('Error fetching data:', response.status);
+    }
+  }).catch(error => {
+    console.error(error);
   });
 }
 
-runSpeedTest();
+testarVelocidade();
